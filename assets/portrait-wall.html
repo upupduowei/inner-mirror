@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自我察觉画像</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%230B1020'/%3E%3Cpath d='M16 7l2.2 4.8 5.2.6-3.8 3.6 1 5.2L16 18.6l-4.6 2.6 1-5.2-3.8-3.6 5.2-.6z' fill='%23E8B64C'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg-deep:#0B1020; --bg-card:#141B2E; --bg-card2:#182139;
+    --ink:#F2F5FA; --muted:#8A94AC; --faint:#5C6680;
+    --gold:#E8B64C; --gold-soft:#F2CE7C; --cyan:#53D6C8; --cyan-soft:#9BE8E0;
+    --rose:#E88B8B; --violet:#9B8BE8; --green:#8FD98F;
+    --line:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.16);
+    --shadow:0 18px 48px rgba(0,0,0,.38);
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    background:var(--bg-deep); color:var(--ink); line-height:1.6; min-height:100vh;
+    background-image:
+      radial-gradient(1100px 520px at 78% -8%, rgba(83,214,200,.13), transparent 62%),
+      radial-gradient(900px 480px at 8% 4%, rgba(232,182,76,.10), transparent 60%),
+      linear-gradient(180deg,#0D1322 0%, #0B1020 55%, #090D18 100%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:20px 16px 64px}
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;background:
+    radial-gradient(1px 1px at 22% 18%,rgba(255,255,255,.5),transparent 60%),
+    radial-gradient(1px 1px at 68% 12%,rgba(255,255,255,.4),transparent 60%),
+    radial-gradient(1.5px 1.5px at 84% 42%,rgba(242,206,124,.55),transparent 60%),
+    radial-gradient(1px 1px at 36% 66%,rgba(255,255,255,.35),transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 82%,rgba(155,232,224,.5),transparent 60%),
+    radial-gradient(1px 1px at 92% 78%,rgba(255,255,255,.4),transparent 60%),
+    radial-gradient(1px 1px at 54% 38%,rgba(255,255,255,.3),transparent 60%);}
+  .stars::after{content:"";position:absolute;inset:0;background:
+    radial-gradient(1px 1px at 47% 8%,rgba(255,255,255,.35),transparent 60%),
+    radial-gradient(1px 1px at 76% 58%,rgba(255,255,255,.3),transparent 60%),
+    radial-gradient(1px 1px at 30% 42%,rgba(242,206,124,.4),transparent 60%);}
+  .z1{position:relative;z-index:1}
+
+  .hero{padding:26px 4px 6px;display:flex;flex-direction:column;gap:18px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--cyan-soft);letter-spacing:.14em;font-weight:600}
+  .eyebrow svg{width:15px;height:15px}
+  h1{font-size:34px;line-height:1.2;font-weight:800;letter-spacing:.01em}
+  h1 .gold{color:var(--gold)}
+  .hero-sub{font-size:15px;color:var(--muted);max-width:640px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+  .stat-card{background:linear-gradient(160deg,var(--bg-card),var(--bg-card2));border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;box-shadow:var(--shadow)}
+  .stat-num{font-size:28px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}
+  .stat-num.g{color:var(--gold)}
+  .stat-num.c{color:var(--cyan)}
+  .stat-label{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .rank-line{display:flex;align-items:center;gap:10px;margin-top:4px;font-size:13.5px;color:var(--muted)}
+  .rank-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(120deg,rgba(232,182,76,.16),rgba(83,214,200,.12));border:1px solid rgba(232,182,76,.4);color:var(--gold-soft);font-weight:700;padding:4px 12px;border-radius:999px;font-size:13px}
+  .rank-bar{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .rank-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--cyan));transition:width .9s cubic-bezier(.2,.8,.2,1)}
+
+  .panel{background:linear-gradient(165deg,var(--bg-card),var(--bg-card2));border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:18px 18px 0}
+  .sec-title{font-size:18px;font-weight:700}
+  .sec-title svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px;color:var(--gold)}
+  .sec-note{font-size:12.5px;color:var(--muted)}
+
+  .portrait{padding:14px 18px 20px}
+  .dim-row{display:flex;align-items:center;gap:10px;padding:9px 0}
+  .dim-name{width:88px;flex:none;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .dim-track{flex:1;height:9px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .dim-fill{height:100%;border-radius:99px;width:0;transition:width 1s cubic-bezier(.2,.8,.2,1);position:relative}
+  .dim-val{width:44px;flex:none;text-align:right;font-size:13.5px;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+  .calendar{padding:16px 18px 20px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+  .cal-cell{aspect-ratio:1;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums;min-height:38px;position:relative}
+  .cal-cell.past{color:var(--muted)}
+  .cal-cell.today{border-color:var(--cyan);color:var(--cyan-soft);font-weight:700}
+  .cal-cell.on{background:linear-gradient(150deg,rgba(232,182,76,.35),rgba(83,214,200,.22));border-color:rgba(232,182,76,.6);color:var(--gold-soft);font-weight:800}
+  .cal-cell.on::after{content:"";position:absolute;width:6px;height:6px;border-radius:99px;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+  .cal-week{font-size:12px;color:var(--faint);text-align:center;padding:4px 0}
+
+  .cards{padding:16px 18px 20px}
+  .card-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+  .insight-card{position:relative;border-radius:14px;border:1px solid var(--line);background:linear-gradient(160deg,var(--bg-card),#17203A);padding:14px 15px;overflow:hidden}
+  .insight-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));opacity:.7}
+  .ic-top{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+  .ic-date{font-variant-numeric:tabular-nums}
+  .ic-emo{width:9px;height:9px;border-radius:99px;flex:none}
+  .ic-core{font-size:15px;font-weight:600;line-height:1.5}
+  .ic-layers{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .layer-tag{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line-strong);color:var(--muted)}
+  .layer-tag.l1{border-color:rgba(83,214,200,.4);color:var(--cyan-soft)}
+  .layer-tag.l2{border-color:rgba(232,182,76,.4);color:var(--gold-soft)}
+  .layer-tag.l3{border-color:rgba(155,139,232,.45);color:#BDB3F0}
+  .ic-action{font-size:13px;color:var(--cyan-soft);margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+  .empty{padding:26px 16px;text-align:center;color:var(--faint);font-size:14px}
+
+  .badges{padding:16px 18px 20px}
+  .badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+  .badge{border:1px solid var(--line);border-radius:14px;padding:12px 13px;display:flex;gap:11px;align-items:center;background:rgba(255,255,255,.03)}
+  .badge .b-icon{width:42px;height:42px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:var(--faint)}
+  .badge .b-icon svg{width:22px;height:22px}
+  .badge.locked{opacity:.55;filter:saturate(.2)}
+  .badge.unlocked{background:linear-gradient(160deg,rgba(232,182,76,.10),rgba(83,214,200,.07));border-color:rgba(232,182,76,.38)}
+  .badge.unlocked .b-icon{background:linear-gradient(140deg,rgba(232,182,76,.3),rgba(83,214,200,.22));color:var(--gold)}
+  .b-name{font-size:14px;font-weight:700}
+  .b-desc{font-size:12px;color:var(--muted);margin-top:2px}
+  .b-status{font-size:11.5px;color:var(--faint);margin-top:3px}
+
+  .foot{margin-top:22px;text-align:center;font-size:12px;color:var(--faint);line-height:1.7}
+  .foot b{color:var(--muted);font-weight:600}
+
+  @media (min-width:768px){
+    .wrap{padding:28px 28px 72px}
+    h1{font-size:44px}
+    .hero-sub{font-size:16px}
+    .stats{grid-template-columns:repeat(3,1fr);gap:14px}
+    .stat-num{font-size:34px}
+    .main-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;align-items:start;margin-top:18px}
+    .col{display:flex;flex-direction:column;gap:16px}
+    .card-grid{grid-template-columns:repeat(2,1fr)}
+    .badge-grid{grid-template-columns:repeat(3,1fr)}
+    .sec-head{padding:20px 22px 0}
+    .portrait,.calendar,.cards,.badges{padding:16px 22px 22px}
+  }
+  @media (min-width:1024px){
+    .card-grid{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+<div class="wrap z1">
+
+  <header class="hero">
+    <span class="eyebrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3.4"/></svg>
+      AI 自我察觉 · 认知画像
+    </span>
+    <h1>把每天的自己，<br>养成一张<span class="gold">认知星图</span></h1>
+    <p class="hero-sub">每一次察觉都是一次点亮：模式、归因、真话、行动，四类资产累积成你的自我画像。</p>
+    <div class="stats">
+      <div class="stat-card"><div class="stat-num c" id="stStreak">0</div><div class="stat-label">连续察觉 · 天</div></div>
+      <div class="stat-card"><div class="stat-num" id="stTotal">0</div><div class="stat-label">累计察觉 · 次</div></div>
+      <div class="stat-card"><div class="stat-num g" id="stPortrait">0%</div><div class="stat-label">画像完整度</div></div>
+    </div>
+    <div class="rank-line">
+      <span class="rank-badge" id="rankBadge">新手观察者</span>
+      <div class="rank-bar"><i id="rankBar" style="width:0%"></i></div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <div class="col">
+      <section class="panel portrait">
+        <div class="sec-head">
+          <div class="sec-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>画像六维</div>
+          <div class="sec-note">察觉次数越多，维度越满</div>
+        </div>
+        <div id="dims" style="padding-top:6px"></div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel calendar">
+        <div class="sec-head">
+          <div class="sec-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 9h18"/></svg>察觉足迹</div>
+          <div class="sec-note" id="calMonth"></div>
+        </div>
+        <div class="cal-week" id="calWeek"></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </section>
+
+      <section class="panel cards">
+        <div class="sec-head">
+          <div class="sec-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M4 9h16"/></svg>察觉卡集</div>
+          <div class="sec-note" id="cardCount"></div>
+        </div>
+        <div id="cardGrid" class="card-grid"></div>
+      </section>
+
+      <section class="panel badges">
+        <div class="sec-head">
+          <div class="sec-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 7 21l5-2.5L17 21l-1.5-7.5"/></svg>成就徽章</div>
+          <div class="sec-note" id="badgeCount"></div>
+        </div>
+        <div class="badge-grid" id="badgeGrid"></div>
+      </section>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <b>察觉在对话里发生，画像在这里生长。</b><br>
+    每次察觉之后回来，星图会多一颗星、卡集多一张卡。
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     认知画像数据 —— 由 AI 对话侧的察觉结果维护，本页仅做展示。
+     每次完成察觉后，AI 会把新卡写入 cards，并同步更新
+     dims / streak / total / badges，你重新打开本页即见最新画像。
+     ============================================================ */
+  var DATA = {
+    streak: 3,
+    total: 3,
+    lastDate: "2026-10-30",
+    dims: { mode:60, attr:30, emo:42, truth:54, action:36, energy:36 },
+    cards: [
+      {
+        date:"2026-10-28", emotion:"焦虑",
+        event:"发布前反复改稿，明知道该发却一直拖",
+        core:"原来我不是怕内容不够好，是怕它暴露我的真实水平。",
+        l1:"完美主义是拖延的保护壳",
+        l2:"内容行业的反馈机制放大了不确定性",
+        l3:"创作者都靠持续输出熬过评价期",
+        action:"今天先发一版，接受不完美"
+      },
+      {
+        date:"2026-10-29", emotion:"烦躁",
+        event:"客户反复改需求，每次都不提前说清楚",
+        core:"我烦的不是改，是改之前没被问过一句。",
+        l1:"把「被尊重」误当成了「被顺从」",
+        l2:"甲乙方关系里权力差天然存在",
+        l3:"交付型生意的本质是管理预期",
+        action:"下次需求变更先确认边界再动手"
+      },
+      {
+        date:"2026-10-30", emotion:"平静",
+        event:"复盘一次商业冲突：客户违约、发函、拿回尾款",
+        core:"原来我享受的不是赢，是把自己放进未知里走了一遭。",
+        l1:"冲突里藏着认知升级的入口",
+        l2:"敢于亮剑的人更容易被认真对待",
+        l3:"体验投资派的复利从斗争中来",
+        action:"把这次复盘写进认知星图"
+      }
+    ],
+    badges: { first:true, s3:true, s7:false, n10:false, n30:false, full:false }
+  };
+
+  var EMOTIONS={
+    "平静":"#9BE8E0","开心":"#8FD98F","焦虑":"#E8B64C",
+    "烦躁":"#E88B8B","委屈":"#9B8BE8","疲惫":"#8A94AC",
+    "愧疚":"#E88B8B","期待":"#8FD98F"
+  };
+  var DIMS=[
+    {key:"mode",name:"模式识别",color:"#E8B64C"},
+    {key:"attr",name:"归因校准",color:"#53D6C8"},
+    {key:"emo",name:"情绪察觉",color:"#9BE8E0"},
+    {key:"truth",name:"真话勇气",color:"#E88B8B"},
+    {key:"action",name:"行动落地",color:"#8FD98F"},
+    {key:"energy",name:"能量管理",color:"#9B8BE8"}
+  ];
+  var BADGES=[
+    {id:"first",name:"初次点亮",desc:"完成第一次察觉",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3.4"/></svg>'},
+    {id:"s3",name:"三日之约",desc:"连续察觉 3 天",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 9h18"/></svg>'},
+    {id:"s7",name:"七星连珠",desc:"连续察觉 7 天",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4l1.8 3.7 4.2.5-3 3 1 4.2-4-2.1-4 2.1 1-4.2-3-3 4.2-.5z"/></svg>'},
+    {id:"n10",name:"十次拆解",desc:"累计察觉 10 次",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M4 9h16M8 13h8"/></svg>'},
+    {id:"n30",name:"满月之察",desc:"累计察觉 30 次",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M14 3.5A8 8 0 1 0 20.5 10 6 6 0 0 1 14 3.5z"/></svg>'},
+    {id:"full",name:"星图绘制者",desc:"画像六维全部拉满",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 12l3.5 2-1-3.8 3.3-2.8-4.3-.3L12 3.5 10.5 7l-4.3.4 3.3 2.8-1 3.8z"/></svg>'}
+  ];
+
+  function cap(v){return Math.max(0,Math.min(100,v));}
+  function portraitPct(){
+    var sum=0,keys=0;for(var k in DATA.dims){sum+=DATA.dims[k];keys++;}
+    return keys?Math.round(sum/(keys*100)*100):0;
+  }
+  function rankInfo(){
+    var p=portraitPct();
+    if(p>=100)return {name:"星图绘制者",prog:100};
+    var tiers=[
+      {min:0,name:"新手观察者",next:25},{min:25,name:"初级察觉者",next:50},
+      {min:50,name:"资深拆解者",next:75},{min:75,name:"上帝视角持有者",next:100}
+    ];
+    var cur=tiers[0];for(var i=0;i<tiers.length;i++){if(p>=tiers[i].min)cur=tiers[i];}
+    var span=cur.next-cur.min;
+    return {name:cur.name,prog:Math.min(100,Math.round((p-cur.min)/span*100))};
+  }
+
+  function renderStats(){
+    document.getElementById("stStreak").textContent=DATA.streak;
+    document.getElementById("stTotal").textContent=DATA.total;
+    document.getElementById("stPortrait").textContent=portraitPct()+"%";
+    var r=rankInfo();
+    document.getElementById("rankBadge").textContent=r.name;
+    document.getElementById("rankBar").style.width=r.prog+"%";
+  }
+
+  function renderDims(){
+    var box=document.getElementById("dims");box.innerHTML="";
+    DIMS.forEach(function(d){
+      var v=cap(DATA.dims[d.key]||0);
+      var row=document.createElement("div");row.className="dim-row";
+      row.innerHTML='<div class="dim-name">'+d.name+'</div>'+'<div class="dim-track"><div class="dim-fill" style="background:'+d.color+';box-shadow:0 0 12px '+d.color+'55"></div></div>'+'<div class="dim-val">0</div>';
+      box.appendChild(row);
+      requestAnimationFrame(function(){
+        row.querySelector(".dim-fill").style.width=v+"%";
+        row.querySelector(".dim-val").textContent=v;
+      });
+    });
+  }
+
+  function renderCalendar(){
+    var now=new Date();var y=now.getFullYear();var m=now.getMonth();
+    document.getElementById("calMonth").textContent=y+"年"+(m+1)+"月";
+    var weeks=["日","一","二","三","四","五","六"];
+    document.getElementById("calWeek").textContent=weeks.join("  ");
+    var grid=document.getElementById("calGrid");grid.innerHTML="";
+    var first=new Date(y,m,1).getDay();
+    var days=new Date(y,m+1,0).getDate();
+    var checkMap={};DATA.cards.forEach(function(c){if(c.date&&c.date.indexOf(y+"-")===0)checkMap[c.date]=1;});
+    var todayStr=function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}();
+    for(var i=0;i<first;i++){var ph=document.createElement("div");ph.className="cal-cell";grid.appendChild(ph);}
+    for(var d=1;d<=days;d++){
+      var ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+      var cell=document.createElement("div");
+      cell.className="cal-cell"+(checkMap[ds]?" on":"")+(ds===todayStr?" today":"");
+      if(ds<todayStr)cell.classList.add("past");
+      cell.textContent=d;
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderCards(){
+    var box=document.getElementById("cardGrid");box.innerHTML="";
+    document.getElementById("cardCount").textContent=DATA.cards.length+" 张";
+    if(!DATA.cards.length){box.innerHTML='<div class="empty" style="grid-column:1/-1">还没有察觉卡——第一次察觉后，这里会亮起第一张。</div>';return;}
+    DATA.cards.slice().reverse().forEach(function(c){
+      var el=document.createElement("div");el.className="insight-card";
+      var emoColor=EMOTIONS[c.emotion]||"#8A94AC";
+      var layers="";
+      if(c.l1){layers+='<span class="layer-tag l1">心理 · '+c.l1+'</span>';}
+      if(c.l2){layers+='<span class="layer-tag l2">社经 · '+c.l2+'</span>';}
+      if(c.l3){layers+='<span class="layer-tag l3">历史 · '+c.l3+'</span>';}
+      var action=c.action?'<div class="ic-action"><b>纠正动作</b> · '+c.action+'</div>':"";
+      el.innerHTML='<div class="ic-top"><span class="ic-emo" style="background:'+emoColor+'"></span><span>'+c.emotion+'</span><span class="ic-date">'+c.date+'</span></div>'+'<div class="ic-core">'+c.core+'</div>'+(layers?'<div class="ic-layers">'+layers+'</div>':"")+action;
+      box.appendChild(el);
+    });
+  }
+
+  function renderBadges(){
+    var box=document.getElementById("badgeGrid");box.innerHTML="";
+    var unlockedCount=0;
+    BADGES.forEach(function(b){
+      var on=!!DATA.badges[b.id];
+      if(on)unlockedCount++;
+      var el=document.createElement("div");el.className="badge"+(on?" unlocked":" locked");
+      el.innerHTML='<div class="b-icon">'+b.icon+'</div><div><div class="b-name">'+b.name+'</div><div class="b-desc">'+b.desc+'</div><div class="b-status">'+(on?"已解锁":"未解锁")+'</div></div>';
+      box.appendChild(el);
+    });
+    document.getElementById("badgeCount").textContent=unlockedCount+"/"+BADGES.length;
+  }
+
+  renderStats();renderDims();renderCalendar();renderCards();renderBadges();
+})();
+</script>
+</body>
+</html>
